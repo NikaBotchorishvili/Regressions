@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-data = pd.read_csv("./datasets/Housing.csv")
+data = pd.read_csv("D:/Projects/python/ml/regressions/datasets/Housing.csv")
 
 Q1 = data["area"].quantile(0.25)
 Q3 = data["area"].quantile(0.75)
@@ -16,35 +16,35 @@ upper_bound = Q3 + 1.5 * IQR
 data = data[(data["area"] >= lower_bound) & (data["area"] <= upper_bound)]
 
 
-def gradient_descent(data, m_now, b_now, learning_rate):
+def gradient_descent(data, m_now, b_now, learning_rate, iterations):
 
     m_gradient = 0.0
     b_gradient = 0.0
 
     DATA_LENGTH = len(data)
-
-    for i in range(DATA_LENGTH):
-        x = data.iloc[i].area
-        y = data.iloc[i].price
-
-        m_gradient += -(2 / DATA_LENGTH) * x * (y - (m_now * x + b_now))
-        b_gradient += -(2 / DATA_LENGTH) * (y - (m_now * x + b_now))
-    m = m_now - learning_rate * m_gradient
-    b = b_now - learning_rate * b_gradient
+    areas = data["area"].values
+    prices = data["price"].values
+    for _ in range(iterations):
+        y_prediction = m_now * areas + b_now
+        error = prices - y_prediction
+        
+        m_gradient += -(2 / DATA_LENGTH) * np.dot(areas, error)
+        b_gradient += -(2 / DATA_LENGTH) * np.sum(error)
+        m = m_now - learning_rate * m_gradient
+        b = b_now - learning_rate * b_gradient
 
     return m, b
 
 
 m = 0
 b = 0
-learning_rate = 0.00000002
-iterations = 100
+learning_rate = 0.000000000002
+iterations = 10000
 
 
-for i in range(1, iterations + 1):
-    m, b = gradient_descent(data, m, b, learning_rate)
-    if i % 100 == 0:
-        print(f"Iteration: {i}")
+m, b = gradient_descent(
+    data=data, m_now=m, b_now=b, learning_rate=learning_rate, iterations=iterations
+)
 
 
 plt.scatter(data["area"], data["price"])
